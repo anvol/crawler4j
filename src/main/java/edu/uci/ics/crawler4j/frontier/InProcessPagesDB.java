@@ -51,7 +51,7 @@ public class InProcessPagesDB extends WorkQueues {
 	public boolean removeURL(WebURL webUrl) {
 		synchronized (mutex) {
 			try {
-				DatabaseEntry key = new DatabaseEntry(Util.int2ByteArray(webUrl.getDocid()));				
+				DatabaseEntry key = new DatabaseEntry(getDbKey(webUrl));				
 				Cursor cursor = null;
 				OperationStatus result;
 				DatabaseEntry value = new DatabaseEntry();

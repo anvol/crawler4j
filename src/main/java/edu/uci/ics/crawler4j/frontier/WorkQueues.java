@@ -134,7 +134,28 @@ public class WorkQueues {
 	}
 
 	public void put(WebURL url) throws DatabaseException {
-		
+		DatabaseEntry value = new DatabaseEntry();
+		webURLBinding.objectToEntry(url, value);
+		Transaction txn;
+		if (resumable) {
+			txn = env.beginTransaction(null, null);
+		} else {
+			txn = null;
+		}
+		urlsDB.put(txn, new DatabaseEntry(getDbKey(url)), value);
+		if (resumable) {
+			if (txn != null) {
+				txn.commit();
+			}
+		}
+	}
+	
+	/**
+	 * Generates unique DbKey from WebURL. 
+	 * @param url to generate key from
+	 * @return byte array that is used like a key
+	 */
+	protected byte[] getDbKey(WebURL url){
 		/*
 		 * The key that is used for storing URLs determines the order
 		 * they are crawled. Lower key values results in earlier crawling.
@@ -150,21 +171,8 @@ public class WorkQueues {
 		keyData[0] = url.getPriority();
 		keyData[1] = (url.getDepth() > Byte.MAX_VALUE ? Byte.MAX_VALUE : (byte) url.getDepth());
 		Util.putIntInByteArray(url.getDocid(), keyData, 2);
-
-		DatabaseEntry value = new DatabaseEntry();
-		webURLBinding.objectToEntry(url, value);
-		Transaction txn;
-		if (resumable) {
-			txn = env.beginTransaction(null, null);
-		} else {
-			txn = null;
-		}
-		urlsDB.put(txn, new DatabaseEntry(keyData), value);
-		if (resumable) {
-			if (txn != null) {
-				txn.commit();
-			}
-		}
+		
+		return keyData;
 	}
 
 	public long getLength() {

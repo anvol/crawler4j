@@ -34,6 +34,7 @@ import com.sleepycat.persist.StoreConfig;
 import fr.nikokode.commons.bdb.AbstractBDB;
 import fr.nikokode.commons.exceptions.Unexpected;
 
+
 /**
  * Stores crawler traps in a BDB, and offers access methods.
  *
